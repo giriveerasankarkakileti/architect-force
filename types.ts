@@ -65,11 +65,18 @@ export interface NodeProperties {
   [key: string]: any;
 }
 
+export interface NodeStyle {
+  border: string;
+  bg: string;
+  iconBg: string;
+}
+
 export interface AppNodeData {
   type: NodeType;
   subtype: NodeSubtype;
   properties: NodeProperties;
   icon?: string; // Lucide icon name
+  customStyle?: NodeStyle; // For user-added nodes with custom colors
 }
 
 export type AppNode = Node<AppNodeData>;
