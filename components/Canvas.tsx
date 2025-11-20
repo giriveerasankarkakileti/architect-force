@@ -32,9 +32,10 @@ interface Props {
   setNodes: React.Dispatch<React.SetStateAction<AppNode[]>>;
   setEdges: React.Dispatch<React.SetStateAction<AppEdge[]>>;
   onNodeClick: (event: React.MouseEvent, node: AppNode) => void;
+  onEdgeClick: (event: React.MouseEvent, edge: AppEdge) => void;
 }
 
-const Canvas: React.FC<Props> = ({ nodes, edges, setNodes, setEdges, onNodeClick }) => {
+const Canvas: React.FC<Props> = ({ nodes, edges, setNodes, setEdges, onNodeClick, onEdgeClick }) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   const onNodesChange = useCallback(
@@ -66,7 +67,7 @@ const Canvas: React.FC<Props> = ({ nodes, edges, setNodes, setEdges, onNodeClick
       
       if (!rawData || !reactFlowBounds) return;
 
-      const { type, subtype, label, icon } = JSON.parse(rawData);
+      const { type, subtype, label, icon, customStyle } = JSON.parse(rawData);
 
       // Calculate position relative to canvas
       const position = {
@@ -82,6 +83,7 @@ const Canvas: React.FC<Props> = ({ nodes, edges, setNodes, setEdges, onNodeClick
           type,
           subtype,
           icon,
+          customStyle,
           properties: { label, description: '' }
         },
       };
@@ -100,6 +102,7 @@ const Canvas: React.FC<Props> = ({ nodes, edges, setNodes, setEdges, onNodeClick
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
+        onEdgeClick={onEdgeClick}
         nodeTypes={nodeTypes}
         onDragOver={onDragOver}
         onDrop={onDrop}
