@@ -12,12 +12,16 @@ import { saveProject, loadProject, downloadApex } from './services/projectServic
 const App: React.FC = () => {
   const [nodes, setNodes] = useState<AppNode[]>([]);
   const [edges, setEdges] = useState<AppEdge[]>([]);
+  
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+
   const [showExportMenu, setShowExportMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const exportMenuRef = useRef<HTMLDivElement>(null);
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) || null;
+  const selectedEdge = edges.find((e) => e.id === selectedEdgeId) || null;
 
   // Close export menu when clicking outside
   useEffect(() => {
@@ -32,6 +36,12 @@ const App: React.FC = () => {
 
   const onNodeClick = (_: React.MouseEvent, node: AppNode) => {
     setSelectedNodeId(node.id);
+    setSelectedEdgeId(null); // Deselect edge when node clicked
+  };
+
+  const onEdgeClick = (_: React.MouseEvent, edge: AppEdge) => {
+    setSelectedEdgeId(edge.id);
+    setSelectedNodeId(null); // Deselect node when edge clicked
   };
 
   const onUpdateNode = (id: string, newProps: any) => {
@@ -51,10 +61,33 @@ const App: React.FC = () => {
     );
   };
 
+  const onUpdateEdge = (id: string, label: string, color: string) => {
+    setEdges((eds) => 
+      eds.map((edge) => {
+        if (edge.id === id) {
+          return {
+            ...edge,
+            label: label,
+            style: { ...edge.style, stroke: color },
+            // Update label styles to match the selected color
+            labelStyle: { fill: color, fontWeight: 700 }, 
+            labelBgStyle: { fill: '#ffffff', stroke: color, strokeWidth: 1, fillOpacity: 0.95 },
+          };
+        }
+        return edge;
+      })
+    );
+  };
+
   const onDeleteNode = (id: string) => {
     setNodes((nds) => nds.filter((n) => n.id !== id));
     setEdges((eds) => eds.filter((e) => e.source !== id && e.target !== id));
     setSelectedNodeId(null);
+  };
+
+  const onDeleteEdge = (id: string) => {
+    setEdges((eds) => eds.filter((e) => e.id !== id));
+    setSelectedEdgeId(null);
   };
 
   // Actions
@@ -225,16 +258,23 @@ const App: React.FC = () => {
             edges={edges} 
             setNodes={setNodes} 
             setEdges={setEdges} 
-            onNodeClick={onNodeClick} 
+            onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
           />
         </main>
 
-        {selectedNodeId && (
+        {(selectedNodeId || selectedEdgeId) && (
           <PropertiesPanel 
             node={selectedNode} 
-            onUpdate={onUpdateNode}
-            onDelete={onDeleteNode} 
-            onClose={() => setSelectedNodeId(null)}
+            edge={selectedEdge}
+            onUpdateNode={onUpdateNode}
+            onUpdateEdge={onUpdateEdge}
+            onDeleteNode={onDeleteNode}
+            onDeleteEdge={onDeleteEdge}
+            onClose={() => {
+                setSelectedNodeId(null);
+                setSelectedEdgeId(null);
+            }}
           />
         )}
       </div>
