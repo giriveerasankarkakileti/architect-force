@@ -8,6 +8,11 @@ const CustomNode = ({ data, selected }: NodeProps<AppNodeData>) => {
 
   // Define border colors (accents) and subtle background colors
   const getStyles = () => {
+    // If the node has a custom style (user added), use that
+    if (data.customStyle) {
+      return data.customStyle;
+    }
+
     switch(data.type) {
       case 'VARIABLE': 
         return { 
